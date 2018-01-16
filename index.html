@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+
+        ._search > svg {
+            position: absolute;
+            z-index: 1;
+            top: .875rem;
+            left: .875rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            opacity: .42;
+            fill: black;
+        }
+
+        ._header-btn > svg, ._search > svg, ._search-clear > svg, ._notif-close > svg, ._settings-btn > svg, ._pre-clip > svg {
+            display: inline-block;
+            vertical-align: top;
+            width: 1rem;
+            height: 1rem;
+            pointer-events: none;
+            fill: currentColor;
+        }
+
+        ._search {
+            -ms-flex: 1 1 auto;
+            flex: 1 1 auto;
+            position: relative;
+            height: 100%;
+            padding: .5rem 0 .5rem .5rem
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            height: 30px;
+            padding: 6px 12px;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #555;
+            background: #fff none;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        }
+
+        ._search-tag img {
+            position: absolute;
+            right: 0;
+            top: 13px;
+        }
+
+    </style>
+</head>
+<body>
+<div style="text-align: center;">
+    <img src="index.png" style="background-size: contain;margin: 20px;width: 80%;">
+</div>
+<div class="_search">
+    <input type="text" id="inputHelpBlock" class="form-control" aria-describedby="helpBlock">
+    <div class="_search-tag">
+        <img src="search.png">
+    </div>
+</div>
+</body>
+</html>
