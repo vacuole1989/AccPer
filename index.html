@@ -1,76 +1,161 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <style type="text/css">
+package com.cxd.snquery.action.controller;
 
-        ._search > svg {
-            position: absolute;
-            z-index: 1;
-            top: .875rem;
-            left: .875rem;
-            width: 1.25rem;
-            height: 1.25rem;
-            opacity: .42;
-            fill: black;
-        }
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
-        ._header-btn > svg, ._search > svg, ._search-clear > svg, ._notif-close > svg, ._settings-btn > svg, ._pre-clip > svg {
-            display: inline-block;
-            vertical-align: top;
-            width: 1rem;
-            height: 1rem;
-            pointer-events: none;
-            fill: currentColor;
-        }
+import java.util.HashMap;
+import java.util.Map;
 
-        ._search {
-            -ms-flex: 1 1 auto;
-            flex: 1 1 auto;
-            position: relative;
-            height: 100%;
-            padding: .5rem 0 .5rem .5rem
-        }
 
-        .form-control {
-            display: block;
-            width: 100%;
-            height: 30px;
-            padding: 6px 12px;
-            font-size: 14px;
-            line-height: 1.42857143;
-            color: #555;
-            background: #fff none;
-            border: 1px solid #ccc;
-            border-radius: 15px;
-            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
-            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-        }
+@RestController
+public class QueryController {
 
-        ._search-tag img {
-            position: absolute;
-            right: 0;
-            top: 13px;
-        }
+    @Autowired
+    private RestTemplate restTemplate;
+    @Value("${query.url}")
+    private String queryUrl;
 
-    </style>
-</head>
-<body>
-<div style="text-align: center;">
-    <img src="index.png" style="background-size: contain;margin: 20px;width: 80%;">
-</div>
-<div class="_search">
-    <input type="text" id="inputHelpBlock" class="form-control" aria-describedby="helpBlock">
-    <div class="_search-tag">
-        <img src="search.png">
-    </div>
-</div>
-</body>
-</html>
+    @RequestMapping(value = "/")
+    public Object query() {
+        Object forObject = restTemplate.getForObject(queryUrl, Object.class);
+        return forObject;
+    }
+    @RequestMapping(value = "/apple")
+    public Object query1(String name) {
+        Map map=new HashMap();
+        map.put("a",11231);
+        map.put("b",name);
+        return map;
+    }
+
+}
+
+
+package com.cxd.snquery.action.dto;
+
+import java.io.Serializable;
+
+/**
+ * @author ws03089
+ */
+public class JSONResult implements Serializable{
+
+
+
+    private boolean success=false;
+    private String message=null;
+
+    public JSONResult(boolean success, String message) {
+        this.success = success;
+        this.message = message;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public JSONResult setSuccess(boolean success) {
+        this.success = success;
+        return this;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public JSONResult setMessage(String message) {
+        this.message = message;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "JSONResult{" +
+                "success=" + success +
+                ", message='" + message + '\'' +
+                '}';
+    }
+}
+
+package com.cxd.snquery.action.exception;
+
+import com.cxd.snquery.action.dto.JSONResult;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+/**
+ * @author ws03089
+ */
+@ControllerAdvice
+public class ExceptionAdvice {
+
+    private static Log LOG = LogFactory.getLog(ExceptionAdvice.class);
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseBody
+    public Object processException(MethodArgumentNotValidException e) {
+        String msg = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        LOG.error(msg);
+
+        return new JSONResult(false, msg);
+
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    public JSONResult handleException(Exception ex) {
+        LOG.error(ex.getMessage());
+
+        JSONResult body = new JSONResult(false, ex.getMessage());
+        return body;
+    }
+
+}
+
+
+package com.cxd.snquery.action;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+/**
+ * @author ws03089
+ */
+@SpringBootApplication
+public class App extends SpringBootServletInitializer{
+
+	@Autowired
+	private RestTemplateBuilder builder;
+
+	@Bean
+	public RestTemplate restTemplate(){
+		return builder.build();
+	}
+
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(App.class);
+	}
+}
+
+query:
+  url: http://localhost:8080/apple
+
 
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -139,21 +224,8 @@
 
 </project>
 
-package com.cxd.snquery.action;
 
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
 
-/**
- * @author ws03089
- */
-@SpringBootApplication
-public class App extends SpringBootServletInitializer{
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(App.class);
-	}
-}
+
 
 
